@@ -105,7 +105,7 @@ def on_message(client, userdata, msg):
         elif msg.topic == "tw2/set/deg":
             TW2SET = dato
         TW1NEC = nec(int(TW1SET), int(TW1DEG))
-        #TW2NEC = nec(int(TW2SET), int(TW2DEG))
+        TW2NEC = nec(int(TW2SET), int(TW2DEG))
         gpio_status()
     except Exception as e:
         print("Error procesando o publicando datos.")
