@@ -4,45 +4,57 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
-
+import random
 import time
 # import Adafruit_ADS1x15
 # adc = Adafruit_ADS1x15.ADS1115()
 
-MQTT_HOST = "192.168.33.85"
-MQTT_PORT = 1883
-MQTT_KEEP = 600
 
+flag_connected = False
 
-try:
-    with open('../../cfg/config.json') as json_file:
-        data = json.load(json_file)
-        STACKS = dict(data)
-except Exception as e:
-    print("Error abriendo la configuración: %s" % e)
+with open('../../cfg/config.json') as json_file:
+    data = json.load(json_file)
+    CONFIG = dict(data)
+    MQTT_HOST = CONFIG['MQTT_HOST']
+    MQTT_PORT = CONFIG['MQTT_PORT']
+    MQTT_KEEP = CONFIG['MQTT_KEEP']
 
 
 def on_connect(client, userdata, flags, rc):
+    global flag_connected
     print("Conectado a MQTT")
+    flag_connected = True
 
 
-def on_disconect(client, userdata, msg):
+def on_disconnect(client, userdata, msg):
+    global flag_connected
     print("Conexión MQTT perdida")
-    exit(0)
+    flag_connected = False
 
 
-mqtt_client = mqtt.Client("rotor-feedback")
-mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
-mqtt_client.on_connect = on_connect
-mqtt_client.on_disconnect = on_disconect
+def conn_mqtt():
+    c = mqtt.Client("rotor-feedback")
+    c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
+    c.on_connect = on_connect
+    c.on_disconnect = on_disconnect
+    return c
+
 
 GAIN = 2/3
-val = 0
-while True:
-    value = 0.0
-    # value = adc.read_adc(0, gain=GAIN)
-    # value = (value * 6.144) / 32768
-    mqtt_client.publish("tw1/deg", value)
-    print(value)
-    time.sleep(0.1)
 
+while True:
+    if not flag_connected:
+        try:
+            mqtt_client = conn_mqtt()
+            flag_connected = True
+        except:
+            pass
+    else:
+        tw1rand = random.randint(0, 450)
+        tw2rand = random.randint(0, 450)
+        # value = adc.read_adc(0, gain=GAIN)
+        # value = (value * 6.144) / 32768
+        mqtt_client.publish("tw1/deg", tw1rand)
+        mqtt_client.publish("tw2/deg", tw2rand)
+        mqtt_client.loop(timeout=1.0, max_packets=1)
+    time.sleep(0.25)
