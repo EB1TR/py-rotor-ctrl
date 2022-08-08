@@ -1,4 +1,4 @@
-# Intrucciones de Instalación
+# Instrucciones de Instalación
 
 ### Actualizar e instalar paquetes necesarios
 sudo apt update<br>
