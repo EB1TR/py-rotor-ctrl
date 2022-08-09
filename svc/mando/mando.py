@@ -30,6 +30,8 @@ try:
         MQTT_HOST = CONFIG['MQTT_HOST']
         MQTT_PORT = CONFIG['MQTT_PORT']
         MQTT_KEEP = CONFIG['MQTT_KEEP']
+        TW1MODE = CONFIG['TW1MODE']
+        TW2MODE = CONFIG['TW2MODE']
 except Exception as e:
     print("Error abriendo fichero de configuración.")
     print(e)
@@ -45,7 +47,9 @@ def on_connect(client, userdata, flags, rc):
         ("tw1/deg", 0),
         ("tw2/deg", 0),
         ("tw1/set/deg", 0),
-        ("tw2/set/deg", 0)
+        ("tw2/set/deg", 0),
+        ("tw1/set/mode", 0),
+        ("tw2/set/mode", 0)
     ])
 
 
@@ -67,33 +71,37 @@ def nec(dx, pos):
             return "0"
 
 
-def gpio_status():
+def gpio_status(twx):
     global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC
-    print("TW1DEG:", str(TW1DEG).ljust(3), " | TW1SET:", str(TW1SET).ljust(3), " | TW1NEC:", TW1NEC)
-    print("TW2DEG:", str(TW2DEG).ljust(3), " | TW2SET:", str(TW2SET).ljust(3), " | TW2NEC:", TW2NEC)
-    #if TW1NEC == 1:
-        #tw1_ccw.off()
-        #tw1_cw.on()
-    #elif TW1NEC is -1:
-        #tw1_cw.off()
-        #tw1_ccw.on()
-    #else:
-        #tw1_cw.off()
-        #tw1_ccw.off()
-    #if TW2NEC == 1:
-        #tw2_ccw.off()
-        #tw2_cw.on()
-    #elif TW2NEC == -1:
-        #tw2_cw.off()
-        #tw2_ccw.on()
-    #else:
-        #tw2_cw.off()
-        #tw2_ccw.off()
+    if twx == 1:
+        print("TW1DEG:", str(TW1DEG).ljust(3), " | TW1SET:", str(TW1SET).ljust(3), " | TW1NEC:", TW1NEC)
+        # if TW1NEC == 1:
+            # tw1_ccw.off()
+            # tw1_cw.on()
+        # elif TW1NEC is -1:
+            # tw1_cw.off()
+            # tw1_ccw.on()
+        # else:
+            # tw1_cw.off()
+            # tw1_ccw.off()
+    elif twx == 2:
+        print("TW2DEG:", str(TW2DEG).ljust(3), " | TW2SET:", str(TW2SET).ljust(3), " | TW2NEC:", TW2NEC)
+        #if TW2NEC == 1:
+            #tw2_ccw.off()
+            #tw2_cw.on()
+        #elif TW2NEC == -1:
+            #tw2_cw.off()
+            #tw2_ccw.on()
+        #else:
+            #tw2_cw.off()
+            #tw2_ccw.off()
+    else:
+        pass
 
 
 def on_message(client, userdata, msg):
     try:
-        global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC
+        global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
         dato = msg.payload.decode('utf-8')
         # Mensajes recibidos desde FRONT
         if msg.topic == "tw1/deg":
@@ -104,9 +112,28 @@ def on_message(client, userdata, msg):
             TW1SET = dato
         elif msg.topic == "tw2/set/deg":
             TW2SET = dato
+        elif msg.topic == "tw1/set/mode":
+            if TW1MODE == "rem":
+                TW1MODE = "loc"
+            else:
+                TW1MODE = "rem"
+        elif msg.topic == "tw2/set/mode":
+            if TW2MODE == "rem":
+                TW2MODE = "loc"
+            else:
+                TW2MODE = "rem"
         TW1NEC = nec(int(TW1SET), int(TW1DEG))
         TW2NEC = nec(int(TW2SET), int(TW2DEG))
-        gpio_status()
+        mqtt_client.publish("tw1/mode", TW1MODE)
+        mqtt_client.publish("tw2/mode", TW2MODE)
+        mqtt_client.publish("tw1/setdeg", TW1SET)
+        mqtt_client.publish("tw2/setdeg", TW2SET)
+        mqtt_client.publish("tw1/nec", TW1NEC)
+        mqtt_client.publish("tw2/nec", TW2NEC)
+        if TW1MODE == "rem":
+            gpio_status(1)
+        if TW2MODE == "rem":
+            gpio_status(2)
     except Exception as e:
         print("Error procesando o publicando datos.")
         print(e)

@@ -12,12 +12,16 @@ import time
 
 flag_connected = False
 
-with open('../../cfg/config.json') as json_file:
-    data = json.load(json_file)
-    CONFIG = dict(data)
-    MQTT_HOST = CONFIG['MQTT_HOST']
-    MQTT_PORT = CONFIG['MQTT_PORT']
-    MQTT_KEEP = CONFIG['MQTT_KEEP']
+try:
+    with open('../../cfg/config.json') as json_file:
+        data = json.load(json_file)
+        CONFIG = dict(data)
+        MQTT_HOST = CONFIG['MQTT_HOST']
+        MQTT_PORT = CONFIG['MQTT_PORT']
+        MQTT_KEEP = CONFIG['MQTT_KEEP']
+except Exception as e:
+    print("Error abriendo fichero de configuración.")
+    print(e)
 
 
 def on_connect(client, userdata, flags, rc):
