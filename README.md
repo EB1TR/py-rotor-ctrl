@@ -25,7 +25,7 @@ deactivate<br>
 ### Instalación de paquetes para el Control de dirección
 source venvs/mando/bin/activate<br>
 pip install --upgrade pip<br>
-pip install paho-mqtt<br>
+pip install paho-mqtt rpi.gpio gpiozero<br>
 deactivate<br>
 
 ### Modificamos rc.local para lanzar tareas en el Host
