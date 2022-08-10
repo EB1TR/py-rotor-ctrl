@@ -71,6 +71,15 @@ def nec(dx, pos):
             return "0"
 
 
+def twn_to_off(twn):
+    if twn == 1:
+        tw1_cw.off()
+        tw1_ccw.off()
+    else:
+        tw2_cw.off()
+        tw2_ccw.off()
+
+
 def gpio_status(twx):
     global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC
     if twx == 1:
@@ -115,11 +124,13 @@ def on_message(client, userdata, msg):
         elif msg.topic == "tw1/set/mode":
             if TW1MODE == "rem":
                 TW1MODE = "loc"
+                twn_to_off(1)
             else:
                 TW1MODE = "rem"
         elif msg.topic == "tw2/set/mode":
             if TW2MODE == "rem":
                 TW2MODE = "loc"
+                twn_to_off(2)
             else:
                 TW2MODE = "rem"
         TW1NEC = nec(int(TW1SET), int(TW1DEG))
