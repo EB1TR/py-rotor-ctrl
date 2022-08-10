@@ -4,7 +4,7 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
-#from gpiozero import LED
+from gpiozero import LED
 import time
 
 TW1DEG = 0
@@ -14,14 +14,14 @@ TW2SET = 0
 TW1NEC = 0
 TW2NEC = 0
 
-#tw1_cw = LED(6)
-#tw1_ccw = LED(13)
-#tw2_cw = LED(19)
-#tw2_ccw = LED(26)
-#tw1_cw.off()
-#tw1_ccw.off()
-#tw2_cw.off()
-#tw2_ccw.off()
+tw1_cw = LED(6)
+tw1_ccw = LED(13)
+tw2_cw = LED(19)
+tw2_ccw = LED(26)
+tw1_cw.off()
+tw1_ccw.off()
+tw2_cw.off()
+tw2_ccw.off()
 
 try:
     with open('../../cfg/config.json') as json_file:
@@ -84,26 +84,26 @@ def gpio_status(twx):
     global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC
     if twx == 1:
         print("TW1DEG:", str(TW1DEG).ljust(3), " | TW1SET:", str(TW1SET).ljust(3), " | TW1NEC:", TW1NEC)
-        # if TW1NEC == 1:
-            # tw1_ccw.off()
-            # tw1_cw.on()
-        # elif TW1NEC is -1:
-            # tw1_cw.off()
-            # tw1_ccw.on()
-        # else:
-            # tw1_cw.off()
-            # tw1_ccw.off()
+        if TW1NEC == 1:
+            tw1_ccw.off()
+            tw1_cw.on()
+        elif TW1NEC is -1:
+            tw1_cw.off()
+            tw1_ccw.on()
+        else:
+            tw1_cw.off()
+            tw1_ccw.off()
     elif twx == 2:
         print("TW2DEG:", str(TW2DEG).ljust(3), " | TW2SET:", str(TW2SET).ljust(3), " | TW2NEC:", TW2NEC)
-        #if TW2NEC == 1:
-            #tw2_ccw.off()
-            #tw2_cw.on()
-        #elif TW2NEC == -1:
-            #tw2_cw.off()
-            #tw2_ccw.on()
-        #else:
-            #tw2_cw.off()
-            #tw2_ccw.off()
+        if TW2NEC == 1:
+            tw2_ccw.off()
+            tw2_cw.on()
+        elif TW2NEC == -1:
+            tw2_cw.off()
+            tw2_ccw.on()
+        else:
+            tw2_cw.off()
+            tw2_ccw.off()
     else:
         pass
 
