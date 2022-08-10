@@ -1,5 +1,6 @@
 #!/bin/bash
-HOST_CMD_VENV=/home/pi/venvs/feedback
-HOST_CMD_PYTH=/home/pi/py-rotor-ctrl/svc/feedback
-. $HOST_CMD_VENV/bin/activate
-python $HOST_CMD_PYTH/feedback.py &
+HOST_FEEDBACK_VENV=/home/pi/venvs/feedback
+HOST_FEEDBACK_PYTH=/home/pi/py-rotor-ctrl/svc/feedback
+cd $HOST_FEEDBACK_PYTH
+. $HOST_FEEDBACK_VENV/bin/activate
+python $HOST_FEEDBACK_PYTH/feedback.py &

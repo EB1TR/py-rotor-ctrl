@@ -4,6 +4,7 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
 from gpiozero import LED
 import time
 
@@ -84,10 +85,10 @@ def gpio_status(twx):
     global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC
     if twx == 1:
         print("TW1DEG:", str(TW1DEG).ljust(3), " | TW1SET:", str(TW1SET).ljust(3), " | TW1NEC:", TW1NEC)
-        if TW1NEC == 1:
+        if TW1NEC == "CW":
             tw1_ccw.off()
             tw1_cw.on()
-        elif TW1NEC is -1:
+        elif TW1NEC == "CCW":
             tw1_cw.off()
             tw1_ccw.on()
         else:
@@ -95,10 +96,10 @@ def gpio_status(twx):
             tw1_ccw.off()
     elif twx == 2:
         print("TW2DEG:", str(TW2DEG).ljust(3), " | TW2SET:", str(TW2SET).ljust(3), " | TW2NEC:", TW2NEC)
-        if TW2NEC == 1:
+        if TW2NEC == "CW":
             tw2_ccw.off()
             tw2_cw.on()
-        elif TW2NEC == -1:
+        elif TW2NEC == "CCW":
             tw2_cw.off()
             tw2_ccw.on()
         else:
@@ -112,7 +113,6 @@ def on_message(client, userdata, msg):
     try:
         global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
         dato = msg.payload.decode('utf-8')
-        # Mensajes recibidos desde FRONT
         if msg.topic == "tw1/deg":
             TW1DEG = dato
         elif msg.topic == "tw2/deg":

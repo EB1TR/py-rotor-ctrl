@@ -1,5 +1,6 @@
 #!/bin/bash
-HOST_CMD_VENV=/home/pi/venvs/mando
-HOST_CMD_PYTH=/home/pi/py-rotor-ctrl/svc/mando
-. $HOST_CMD_VENV/bin/activate
-python $HOST_CMD_PYTH/mando.py &
+HOST_MANDO_VENV=/home/pi/venvs/mando
+HOST_MANDO_PYTH=/home/pi/py-rotor-ctrl/svc/mando
+cd $HOST_MANDO_PYTH
+. $HOST_MANDO_VENV/bin/activate
+python $HOST_MANDO_PYTH/mando.py &
