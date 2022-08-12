@@ -4,10 +4,9 @@ __author__ = 'EB1TR'
 
 import json
 import paho.mqtt.client as mqtt
-import random
 import time
-# import Adafruit_ADS1x15
-# adc = Adafruit_ADS1x15.ADS1115()
+import Adafruit_ADS1x15
+adc = Adafruit_ADS1x15.ADS1115()
 
 
 flag_connected = False
@@ -44,7 +43,7 @@ def conn_mqtt():
     return c
 
 
-GAIN = 2/3
+GAIN = 1
 
 while True:
     if not flag_connected:
@@ -54,11 +53,11 @@ while True:
         except:
             pass
     else:
-        tw1rand = random.randint(0, 450)
-        tw2rand = random.randint(0, 450)
-        # value = adc.read_adc(0, gain=GAIN)
-        # value = (value * 6.144) / 32768
-        mqtt_client.publish("tw1/deg", tw1rand)
-        mqtt_client.publish("tw2/deg", tw2rand)
+        raw_tw1 = adc.read_adc(0, gain=GAIN)
+        # raw_tw2 = adc.read_adc(1, gain=GAIN)
+        tw1_deg = (raw_tw1 * 450) / 26335
+        # tw2_deg = (raw_tw2 * 450) / 26335
+        mqtt_client.publish("tw1/deg", int(tw1_deg))
+        # mqtt_client.publish("tw2/deg", tw2_deg)
         mqtt_client.loop(timeout=1.0, max_packets=1)
-    time.sleep(0.25)
+    time.sleep(0.2)

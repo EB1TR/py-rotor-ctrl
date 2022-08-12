@@ -57,16 +57,16 @@ def on_connect(client, userdata, flags, rc):
 def nec(dx, pos):
     if abs(dx + 360 - pos) < abs(dx - pos) and dx + 360 < 450:
         dx = dx + 360
-        if dx < pos:
+        if dx < pos - 1:
             return "CCW"
-        elif dx > pos:
+        elif dx > pos + 1:
             return "CW"
         else:
             return "0"
     else:
-        if dx < pos:
+        if dx < pos - 1:
             return "CCW"
-        elif dx > pos:
+        elif dx > pos + 1:
             return "CW"
         else:
             return "0"
@@ -114,13 +114,13 @@ def on_message(client, userdata, msg):
         global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
         dato = msg.payload.decode('utf-8')
         if msg.topic == "tw1/deg":
-            TW1DEG = dato
+            TW1DEG = int(dato)
         elif msg.topic == "tw2/deg":
-            TW2DEG = dato
+            TW2DEG = int(dato)
         elif msg.topic == "tw1/set/deg":
-            TW1SET = dato
+            TW1SET = int(dato)
         elif msg.topic == "tw2/set/deg":
-            TW2SET = dato
+            TW2SET = int(dato)
         elif msg.topic == "tw1/set/mode":
             if TW1MODE == "rem":
                 TW1MODE = "loc"
@@ -133,8 +133,8 @@ def on_message(client, userdata, msg):
                 twn_to_off(2)
             else:
                 TW2MODE = "rem"
-        TW1NEC = nec(int(TW1SET), int(TW1DEG))
-        TW2NEC = nec(int(TW2SET), int(TW2DEG))
+        TW1NEC = nec(TW1SET, TW1DEG)
+        TW2NEC = nec(TW2SET, TW2DEG)
         mqtt_client.publish("tw1/mode", TW1MODE)
         mqtt_client.publish("tw2/mode", TW2MODE)
         mqtt_client.publish("tw1/setdeg", TW1SET)
