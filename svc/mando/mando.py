@@ -147,18 +147,18 @@ def on_message(client, userdata, msg):
                 twn_to_off(2)
             else:
                 TW2MODE = "rem"
-        TW1NEC = nec(TW1SET, TW1DEG, 1, correct_tw1)
-        TW2NEC = nec(TW2SET, TW2DEG, 1, correct_tw2)
+        if TW1MODE == "rem":
+            TW1NEC = nec(TW1SET, TW1DEG, 1, correct_tw1)
+            gpio_status(1)
+        if TW2MODE == "rem":
+            TW2NEC = nec(TW2SET, TW2DEG, 1, correct_tw2)
+            gpio_status(2)
         mqtt_client.publish("tw1/mode", TW1MODE)
         mqtt_client.publish("tw2/mode", TW2MODE)
         mqtt_client.publish("tw1/setdeg", TW1SET)
         mqtt_client.publish("tw2/setdeg", TW2SET)
         mqtt_client.publish("tw1/nec", TW1NEC)
         mqtt_client.publish("tw2/nec", TW2NEC)
-        if TW1MODE == "rem":
-            gpio_status(1)
-        if TW2MODE == "rem":
-            gpio_status(2)
     except Exception as e:
         print("Error procesando o publicando datos.")
         print(e)
