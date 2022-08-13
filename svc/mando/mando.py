@@ -54,27 +54,19 @@ def on_connect(client, userdata, flags, rc):
     ])
 
 
-def nec(dx, pos, drift, correct):
+def nec(dx, pos, drift):
     if abs(dx + 360 - pos) < abs(dx - pos) and dx + 360 < 450:
         dx = dx + 360
-        if dx < pos - drift and not correct:
+        if dx < pos - drift:
             return "CCW"
-        elif dx < pos - drift * 3 and correct:
-            return "CCW"
-        elif dx > pos + drift and not correct:
-            return "CW"
-        elif dx > pos + drift * 3 and correct:
+        elif dx > pos + drift:
             return "CW"
         else:
             return "0"
     else:
-        if dx < pos - drift and not correct:
+        if dx < pos - drift:
             return "CCW"
-        elif dx < pos - drift * 3 and correct:
-            return "CCW"
-        elif dx > pos + drift and not correct:
-            return "CW"
-        elif dx > pos + drift * 3 and correct:
+        elif dx > pos + drift:
             return "CW"
         else:
             return "0"
@@ -120,20 +112,14 @@ def gpio_status(twx):
 def on_message(client, userdata, msg):
     try:
         global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
-        correct_tw1 = True
-        correct_tw2 = True
         dato = msg.payload.decode('utf-8')
         if msg.topic == "tw1/deg":
             TW1DEG = int(dato)
         elif msg.topic == "tw2/deg":
             TW2DEG = int(dato)
         elif msg.topic == "tw1/set/deg":
-            if int(dato) == TW1SET:
-                correct_tw1 = False
             TW1SET = int(dato)
         elif msg.topic == "tw2/set/deg":
-            if int(dato) == TW1SET:
-                correct_tw2 = False
             TW2SET = int(dato)
         elif msg.topic == "tw1/set/mode":
             if TW1MODE == "rem":
@@ -148,10 +134,10 @@ def on_message(client, userdata, msg):
             else:
                 TW2MODE = "rem"
         if TW1MODE == "rem":
-            TW1NEC = nec(TW1SET, TW1DEG, 1, correct_tw1)
+            TW1NEC = nec(TW1SET, TW1DEG, 1)
             gpio_status(1)
         if TW2MODE == "rem":
-            TW2NEC = nec(TW2SET, TW2DEG, 1, correct_tw2)
+            TW2NEC = nec(TW2SET, TW2DEG, 1)
             gpio_status(2)
         mqtt_client.publish("tw1/mode", TW1MODE)
         mqtt_client.publish("tw2/mode", TW2MODE)
