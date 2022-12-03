@@ -40,6 +40,7 @@ except Exception as e:
 
 def on_disconnect(client, userdata, msg):
     print("Conexión MQTT perdida.")
+    exit(0)
 
 
 def on_connect(client, userdata, flags, rc):
@@ -157,7 +158,7 @@ while True:
         mqtt_client.on_connect = on_connect
         mqtt_client.on_message = on_message
         mqtt_client.on_disconnect = on_disconnect
-        mqtt_client.loop_forever()
+        mqtt_client.loop_start()
     except:
         print("MQTT no disponible.")
         time.sleep(2)
