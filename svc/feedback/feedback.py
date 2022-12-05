@@ -29,17 +29,11 @@ def on_connect(client, userdata, flags, rc):
     flag_connected = True
 
 
-def on_disconnect(client, userdata, msg):
-    print("Conexión MQTT perdida.")
-    exit(0)
-
-
 def conn_mqtt():
     c = mqtt.Client("rotor-feedback")
     c.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
-    c.loop_start()
     c.on_connect = on_connect
-    c.on_disconnect = on_disconnect
+    c.loop_start()
     return c
 
 
