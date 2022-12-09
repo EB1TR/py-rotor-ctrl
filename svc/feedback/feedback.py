@@ -56,10 +56,8 @@ while True:
         raw_tw1 = adc.read_adc(0, gain=GAIN)
         tw1_deg = (raw_tw1 * 450) / 26335
         mqtt_client.publish("tw1/deg", int(tw1_deg))
-        mqtt_client.loop(timeout=1.0, max_packets=1)
         time.sleep(0.1)
         raw_tw2 = adc.read_adc(1, gain=GAIN)
         tw2_deg = (raw_tw2 * 450) / 26335
         mqtt_client.publish("tw2/deg", int(tw2_deg))
-        mqtt_client.loop(timeout=1.0, max_packets=1)
     time.sleep(0.1)

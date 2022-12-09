@@ -15,10 +15,10 @@ TW2SET = 0
 TW1NEC = 0
 TW2NEC = 0
 
-tw1_cw = LED(6)
-tw1_ccw = LED(13)
-tw2_cw = LED(19)
-tw2_ccw = LED(26)
+tw1_cw = LED(19)
+tw1_ccw = LED(26)
+tw2_cw = LED(6)
+tw2_ccw = LED(13)
 tw1_cw.off()
 tw1_ccw.off()
 tw2_cw.off()
