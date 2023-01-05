@@ -10,6 +10,7 @@ from gpiozero import LED
 import time
 
 adc = Adafruit_ADS1x15.ADS1115()
+GAIN = 1
 
 TW1DEG = 0
 TW2DEG = 0
@@ -28,8 +29,6 @@ tw1_ccw.off()
 tw2_cw.off()
 tw2_ccw.off()
 
-flag_connected = False
-
 try:
     with open('cfg/config.json') as json_file:
         data = json.load(json_file)
@@ -43,19 +42,6 @@ except Exception as e:
     print("Error abriendo fichero de configuración.")
     print(e)
     exit(0)
-
-
-def on_connect(client, userdata, flags, rc):
-    global flag_connected
-    print("Conectado a MQTT.")
-    client.subscribe([
-        ("tw1/set/deg", 0),
-        ("tw2/set/deg", 0),
-        ("tw1/set/mode", 0),
-        ("tw2/set/mode", 0)
-    ])
-    print("Suscrito a topics.")
-    flag_connected = True
 
 
 def nec(dx, pos, drift):
@@ -113,6 +99,18 @@ def gpio_status(twx):
         pass
 
 
+def on_connect(client, userdata, flags, rc):
+    print("Conectado a MQTT.")
+    client.subscribe([
+        ("tw1/set/deg", 0),
+        ("tw2/set/deg", 0),
+        ("tw1/set/mode", 0),
+        ("tw2/set/mode", 0)
+    ])
+    print("Suscrito a topics.")
+    flag_connected = True
+
+
 def on_message(client, userdata, msg):
     try:
         global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
@@ -144,45 +142,43 @@ def on_message(client, userdata, msg):
         print(e)
 
 
-def conn_mqtt():
-    global flag_connected
-    c = mqtt.Client("rotor-feedback")
-    c.on_connect = on_connect
-    c.on_message = on_message
-    c.connect_async(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
-    flag_connected = True
-    c.loop_start()
-    return c
+def on_disconnect(client, userdata, rc):
+    print("Desconectado de MQTT:  " + str(rc))
+    time.sleep(1)
 
 
-GAIN = 1
+def on_connect_fail(client, userdata, rc):
+    print("Conexión fallida MQTT:  " + str(rc))
+    time.sleep(1)
+
 
 print("Arranca 'Control de Rotores'")
+print("MQTT Desconectado, intentando conexión.")
+mqtt_client = mqtt.Client("rotor-feedback")
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
+mqtt_client.on_disconnect = on_disconnect
+mqtt_client.on_connect_fail = on_connect_fail
+mqtt_client.connect_async(MQTT_HOST, MQTT_PORT, MQTT_KEEP)
+mqtt_client.loop_start()
+
 while True:
-    if not flag_connected:
-        try:
-            print("MQTT Desconectado, intentando conexión.")
-            mqtt_client = conn_mqtt()
-        except:
-            time.sleep(2)
-            print("Intentando reconexión en 2 segundos...")
-    else:
-        raw_tw1 = adc.read_adc(0, gain=GAIN)
-        TW1DEG = (raw_tw1 * 450) / 26335
-        TW1DEG = time.time()
-        time.sleep(0.1)
+    raw_tw1 = adc.read_adc(0, gain=GAIN)
+    TW1DEG = (raw_tw1 * 450) / 26335
+    TW1DEG = time.time()
+    time.sleep(0.1)
 
-        raw_tw2 = adc.read_adc(1, gain=GAIN)
-        TW2DEG = (raw_tw2 * 450) / 26335
-        TW2DEG = time.time()+2.8
-        time.sleep(0.1)
+    raw_tw2 = adc.read_adc(1, gain=GAIN)
+    TW2DEG = (raw_tw2 * 450) / 26335
+    TW2DEG = time.time()+2.8
+    time.sleep(0.1)
 
-        if TS + 1 <= time.time():
-            mqtt_client.publish("tw1/deg", int(TW1DEG))
-            mqtt_client.publish("tw2/deg", int(TW2DEG))
-            mqtt_client.publish("tw1/mode", TW1MODE)
-            mqtt_client.publish("tw2/mode", TW2MODE)
-            mqtt_client.publish("tw1/setdeg", TW1SET)
-            mqtt_client.publish("tw2/setdeg", TW2SET)
-            mqtt_client.publish("tw1/nec", TW1NEC)
-            mqtt_client.publish("tw2/nec", TW2NEC)
+    if TS + 1 <= time.time():
+        mqtt_client.publish("tw1/deg", int(TW1DEG))
+        mqtt_client.publish("tw2/deg", int(TW2DEG))
+        mqtt_client.publish("tw1/mode", TW1MODE)
+        mqtt_client.publish("tw2/mode", TW2MODE)
+        mqtt_client.publish("tw1/setdeg", TW1SET)
+        mqtt_client.publish("tw2/setdeg", TW2SET)
+        mqtt_client.publish("tw1/nec", TW1NEC)
+        mqtt_client.publish("tw2/nec", TW2NEC)
