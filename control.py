@@ -111,6 +111,16 @@ def on_connect(client, userdata, flags, rc):
     flag_connected = True
 
 
+def correct_deg():
+    global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
+    if TW1MODE == "rem":
+        TW1NEC = nec(TW1SET, TW1DEG, 1)
+        gpio_status(1)
+    if TW2MODE == "rem":
+        TW2NEC = nec(TW2SET, TW2DEG, 1)
+        gpio_status(2)
+
+
 def on_message(client, userdata, msg):
     try:
         global TW1DEG, TW2DEG, TW1SET, TW2SET, TW1NEC, TW2NEC, TW1MODE, TW2MODE
@@ -131,12 +141,6 @@ def on_message(client, userdata, msg):
                 twn_to_off(2)
             else:
                 TW2MODE = "rem"
-        if TW1MODE == "rem":
-            TW1NEC = nec(TW1SET, TW1DEG, 1)
-            gpio_status(1)
-        if TW2MODE == "rem":
-            TW2NEC = nec(TW2SET, TW2DEG, 1)
-            gpio_status(2)
     except Exception as e:
         print("Error procesando o publicando datos.")
         print(e)
@@ -165,13 +169,13 @@ mqtt_client.loop_start()
 while True:
     raw_tw1 = adc.read_adc(0, gain=GAIN)
     TW1DEG = (raw_tw1 * 450) / 26335
-    TW1DEG = time.time()
     time.sleep(0.1)
 
     raw_tw2 = adc.read_adc(1, gain=GAIN)
     TW2DEG = (raw_tw2 * 450) / 26335
-    TW2DEG = time.time()+2.8
     time.sleep(0.1)
+
+    correct_deg()
 
     if TS + 1 <= time.time():
         mqtt_client.publish("tw1/deg", int(TW1DEG))

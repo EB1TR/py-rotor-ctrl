@@ -15,7 +15,7 @@ mkdir venvs/control<br>
 virtualenv venvs/control<br>
 
 ### Instalación de paquetes para el control de dirección
-source venvs/feedback/bin/activate<br>
+source venvs/control/bin/activate<br>
 pip install --upgrade pip<br>
 pip install paho-mqtt adafruit_ads1x15 rpi.gpio gpiozero<br>
 deactivate<br>
