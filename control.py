@@ -18,7 +18,6 @@ TW1SET = 0
 TW2SET = 0
 TW1NEC = 0
 TW2NEC = 0
-TS = time.time()
 
 tw1_cw = LED(19)
 tw1_ccw = LED(26)
@@ -177,12 +176,11 @@ while True:
 
     correct_deg()
 
-    if TS + 1 <= time.time():
-        mqtt_client.publish("tw1/deg", int(TW1DEG))
-        mqtt_client.publish("tw2/deg", int(TW2DEG))
-        mqtt_client.publish("tw1/mode", TW1MODE)
-        mqtt_client.publish("tw2/mode", TW2MODE)
-        mqtt_client.publish("tw1/setdeg", TW1SET)
-        mqtt_client.publish("tw2/setdeg", TW2SET)
-        mqtt_client.publish("tw1/nec", TW1NEC)
-        mqtt_client.publish("tw2/nec", TW2NEC)
+    mqtt_client.publish("tw1/deg", int(TW1DEG))
+    mqtt_client.publish("tw2/deg", int(TW2DEG))
+    mqtt_client.publish("tw1/mode", TW1MODE)
+    mqtt_client.publish("tw2/mode", TW2MODE)
+    mqtt_client.publish("tw1/setdeg", TW1SET)
+    mqtt_client.publish("tw2/setdeg", TW2SET)
+    mqtt_client.publish("tw1/nec", TW1NEC)
+    mqtt_client.publish("tw2/nec", TW2NEC)
