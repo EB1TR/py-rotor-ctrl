@@ -3,5 +3,6 @@
     "MQTT_PORT": 1883,
     "MQTT_KEEP": 60,
     "TW1MODE": "loc",
-    "TW2MODE": "loc"
+    "TW2MODE": "loc",
+    "TW3MODE": "loc"
 }
